@@ -25,7 +25,28 @@ import java.util.Iterator;
  */
 public class Listeners implements Listener {
 
-	private int tnt = 0;
+	private boolean disabled = false;
+	private int     tnt      = 0;
+
+	public Listeners() {
+		LikeDynomite.instance.getServer().getScheduler().runTaskTimer(LikeDynomite.instance, () -> {
+			if (tnt >= LikeDynomite.instance.configuration.global.max - 25) {
+				if (!disabled) {
+					LikeDynomite.instance.getServer().broadcastMessage("§4Primed TNT is capped.");
+
+					disabled = true;
+				}
+
+				LikeDynomite.instance.getLogger().info("§4Primed TNT: " + tnt + ".");
+			} else if (tnt < LikeDynomite.instance.configuration.global.max - 25) {
+				if (disabled) {
+					LikeDynomite.instance.getServer().broadcastMessage("§2Primed TNT is no longer capped.");
+
+					disabled = false;
+				}
+			}
+		}, 1L, 10*20L);
+	}
 
 	@EventHandler()
 	public void PlayerInteractEventHandler(final PlayerInteractEvent event) {
