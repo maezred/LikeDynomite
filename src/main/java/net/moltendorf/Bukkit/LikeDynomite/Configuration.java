@@ -47,7 +47,7 @@ public class Configuration {
 			EntityType.ZOMBIE
 		));
 
-		final protected int max = 800;
+		final protected int max = 1200;
 
 	}
 
