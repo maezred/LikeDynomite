@@ -47,6 +47,8 @@ public class Configuration {
 			EntityType.ZOMBIE
 		));
 
+		final protected int max = 800;
+
 	}
 
 	// Final data.

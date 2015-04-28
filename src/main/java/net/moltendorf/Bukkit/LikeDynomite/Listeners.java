@@ -25,6 +25,8 @@ import java.util.Iterator;
  */
 public class Listeners implements Listener {
 
+	private int tnt = 0;
+
 	@EventHandler()
 	public void PlayerInteractEventHandler(final PlayerInteractEvent event) {
 		final Block block = event.getClickedBlock();
@@ -55,8 +57,12 @@ public class Listeners implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void EntityExplodeEventHighestHandler(final EntityExplodeEvent event) {
 		if (event.getEntityType() == EntityType.PRIMED_TNT) {
-			final TNTPrimed tnt = (TNTPrimed)event.getEntity();
-			final Entity entity = tnt.getSource();
+			if (tnt > 0) {
+				--tnt;
+			}
+
+			final TNTPrimed tntPrimed = (TNTPrimed)event.getEntity();
+			final Entity entity = tntPrimed.getSource();
 
 			if (entity == null) {
 				event.setCancelled(false);
@@ -64,8 +70,12 @@ public class Listeners implements Listener {
 				for (final Iterator<Block> iterator = event.blockList().iterator(); iterator.hasNext(); ) {
 					final Block block = iterator.next();
 
-					if (block != null && block.getType() != Material.TNT) {
-						iterator.remove();
+					if (block != null) {
+						if (block.getType() == Material.TNT && tnt < LikeDynomite.instance.configuration.global.max) {
+							++tnt;
+						} else {
+							iterator.remove();
+						}
 					}
 				}
 			} else {
@@ -75,7 +85,9 @@ public class Listeners implements Listener {
 					final Block block = iterator.next();
 
 					if (block != null) {
-						if (block.getType() == Material.TNT) {
+						if (block.getType() == Material.TNT && tnt < LikeDynomite.instance.configuration.global.max) {
+							++tnt;
+
 							block.setType(Material.AIR);
 
 							world.spawnEntity(block.getLocation(), EntityType.PRIMED_TNT);
