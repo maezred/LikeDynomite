@@ -1,0 +1,6 @@
+name: LikeDynomite
+version: 1.0.0
+description: TNT can destroy other TNT.
+author: moltendorf
+website: http://dev.bukkit.org/server-mods/moltendorf-likedynomite/
+main: net.moltendorf.Bukkit.LikeDynomite.LikeDynomite
