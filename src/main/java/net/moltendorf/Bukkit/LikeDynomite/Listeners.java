@@ -29,6 +29,10 @@ public class Listeners implements Listener {
 	private int     tnt      = 0;
 
 	public Listeners() {
+		for (final World world : LikeDynomite.instance.getServer().getWorlds()) {
+			tnt += world.getEntitiesByClass(TNTPrimed.class).size();
+		}
+
 		LikeDynomite.instance.getServer().getScheduler().runTaskTimer(LikeDynomite.instance, () -> {
 			if (tnt >= LikeDynomite.instance.configuration.global.max - 25) {
 				if (!disabled) {
