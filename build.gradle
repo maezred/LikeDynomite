@@ -20,21 +20,22 @@ apply plugin: 'org.ajoberstar.release-opinion'
 apply plugin: 'com.github.johnrengelman.shadow'
 
 group = 'net.moltendorf.bukkit.likedynomite'
-version = "${project.version}"
 
 sourceCompatibility = 1.8
 
+tasks.release.dependsOn 'build'
+
 jar {
     manifest {
-        attributes 'Main-Class': "${rootProject.group}.${rootProject.name}Kt",
-                'Release-Name': rootProject.name,
-                'Release-Version': rootProject.version
+        attributes 'Main-Class': "${project.group}.${project.name}Kt",
+                'Release-Name': project.name,
+                'Release-Version': project.version
     }
 }
 
 shadowJar {
-    baseName = rootProject.name
-    version = "${new Date().format('YYYYMMdd-HHmmss')}-${rootProject.version}"
+    baseName = project.name
+    version = "${new Date().format('YYYYMMdd-HHmmss')}-${project.version}"
     classifier = null
 }
 
