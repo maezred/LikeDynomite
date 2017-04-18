@@ -23,7 +23,8 @@ group = 'net.moltendorf.bukkit.likedynomite'
 
 sourceCompatibility = 1.8
 
-tasks.release.dependsOn 'build'
+tasks.release.dependsOn 'clean', 'build'
+tasks.build.mustRunAfter 'clean'
 
 jar {
     manifest {
