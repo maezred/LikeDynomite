@@ -57,14 +57,14 @@ public class Listeners implements Listener {
 		final Block block = event.getClickedBlock();
 
 		if (block != null && block.getType() == Material.TNT) {
-			final ItemStack item = event.getPlayer().getItemInHand();
+			final ItemStack item = event.getItem();
 
 			if (item != null && item.getType() == Material.FLINT_AND_STEEL) {
 				final Location location = block.getLocation().add(0.5, 0, 0.5);
 				final World world = location.getWorld();
 
 				block.setType(Material.AIR);
-				world.playSound(location, Sound.FUSE, 1, 1);
+				world.playSound(location, Sound.ENTITY_TNT_PRIMED, 1, 1);
 				world.spawnEntity(location, EntityType.PRIMED_TNT);
 
 				event.setCancelled(true);
