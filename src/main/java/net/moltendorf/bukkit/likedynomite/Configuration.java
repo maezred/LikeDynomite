@@ -1,4 +1,4 @@
-package net.moltendorf.Bukkit.LikeDynomite;
+package net.moltendorf.bukkit.likedynomite;
 
 import org.bukkit.entity.EntityType;
 
