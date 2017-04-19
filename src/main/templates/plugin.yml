@@ -1,6 +1,6 @@
 name: ${project.name}
-version: ${project.version}
+version: ${project.version} (${date})
 description: ${project.description}
-author: moltendorf
-website: http://dev.bukkit.org/server-mods/moltendorf-likedynomite/
+author: ${author}
+website: ${website}
 main: ${project.group}.${project.name}

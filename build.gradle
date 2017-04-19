@@ -24,29 +24,33 @@ group = 'net.moltendorf.bukkit.likedynomite'
 
 sourceCompatibility = 1.8
 
-tasks.release.dependsOn 'clean', 'build'
-tasks.build.dependsOn 'expandTemplates'
+def date = new Date().format('YYYY/MM/dd HH:mm:ss')
+def author = "${grgit.log(maxCommits: 1).get(0).author.name} <${grgit.log(maxCommits: 1).get(0).author.email}>"
+def website = "https://github.com/moltendorf/${project.name}"
+
 tasks.build.mustRunAfter 'clean'
+
+tasks.processResources.dependsOn 'expandTemplates'
 tasks.shadowJar.dependsOn 'build'
+tasks.release.dependsOn 'clean', 'shadowJar'
 
 task expandTemplates(type: Copy) {
     from 'src/main/templates'
     into "$buildDir/resources/main"
 
-    include 'plugin.yml'
-    expand project: project
+    expand project: project, author: author, website: website, date: date
 }
 
 jar {
-    manifest {
-        attributes 'Release-Name': project.name,
-                'Release-Version': project.version
-    }
+    manifest.attributes 'Specification-Title': project.name,
+            'Specification-Vendor': author,
+            'Implementation-Title': "${project.group}.${project.name}",
+            'Implementation-Version': project.version
 }
 
 shadowJar {
     baseName = project.name
-    version = "${new Date().format('YYYYMMdd-HHmmss')}-${project.version}"
+    version = project.version
     classifier = null
 }
 
