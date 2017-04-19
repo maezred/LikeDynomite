@@ -19,13 +19,23 @@ apply plugin: 'org.ajoberstar.grgit'
 apply plugin: 'org.ajoberstar.release-opinion'
 apply plugin: 'com.github.johnrengelman.shadow'
 
+description = 'TNT can destroy other TNT.'
 group = 'net.moltendorf.bukkit.likedynomite'
 
 sourceCompatibility = 1.8
 
 tasks.release.dependsOn 'clean', 'build'
+tasks.build.dependsOn 'expandTemplates'
 tasks.build.mustRunAfter 'clean'
 tasks.shadowJar.dependsOn 'build'
+
+task expandTemplates(type: Copy) {
+    from 'src/main/templates'
+    into "$buildDir/resources/main"
+
+    include 'plugin.yml'
+    expand project: project
+}
 
 jar {
     manifest {
