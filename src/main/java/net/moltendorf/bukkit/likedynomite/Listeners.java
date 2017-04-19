@@ -1,5 +1,6 @@
 package net.moltendorf.bukkit.likedynomite;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -36,15 +37,15 @@ public class Listeners implements Listener {
 		LikeDynomite.instance.getServer().getScheduler().runTaskTimer(LikeDynomite.instance, () -> {
 			if (tnt >= LikeDynomite.instance.configuration.global.max - 25) {
 				if (!disabled) {
-					LikeDynomite.instance.getServer().broadcastMessage("§4Primed TNT is capped.");
+					LikeDynomite.instance.getServer().broadcastMessage(ChatColor.DARK_RED + "Primed TNT is capped.");
 
 					disabled = true;
 				}
 
-				LikeDynomite.instance.getLogger().info("§4Primed TNT: " + tnt + ".");
+				LikeDynomite.instance.getServer().getConsoleSender().sendMessage("[LikeDynomite] " + ChatColor.DARK_RED + "Primed TNT: " + tnt + ".");
 			} else if (tnt < LikeDynomite.instance.configuration.global.max - 25) {
 				if (disabled) {
-					LikeDynomite.instance.getServer().broadcastMessage("§2Primed TNT is no longer capped.");
+					LikeDynomite.instance.getServer().broadcastMessage(ChatColor.DARK_GREEN + "Primed TNT is no longer capped.");
 
 					disabled = false;
 				}
