@@ -35,6 +35,8 @@ tasks.shadowJar.dependsOn 'build'
 tasks.release.dependsOn 'clean', 'shadowJar'
 
 task expandTemplates(type: Copy) {
+    outputs.upToDateWhen { false }
+
     from 'src/main/templates'
     into "$buildDir/resources/main"
 
