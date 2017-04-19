@@ -1,7 +1,8 @@
 package net.moltendorf.bukkit.likedynomite
 
 import org.bukkit.entity.EntityType
-import java.util.*
+import java.util.Arrays
+import java.util.HashSet
 
 /**
  * Settings
@@ -11,7 +12,8 @@ import java.util.*
 class Settings {
   val enabled = true // Whether or not the plugin is enabled at all; interface mode.
 
-  val max = 1200 // Maximum number of TNT in queue.
+  val max = 1_000_000 // Maximum number of TNT in queue.
+  val rate = 1 // Number of TNT to spawn per tick.
 
   // Entities that can be damaged by TNT.
   val damageable = HashSet(Arrays.asList(
