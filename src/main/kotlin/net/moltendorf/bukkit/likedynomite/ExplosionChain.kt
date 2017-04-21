@@ -51,6 +51,7 @@ class ExplosionChain {
       if (primed.isEmpty()) {
         primingTask?.cancel()
         primingTask = null
+        statusTask?.cancel()
         statusTask = null
 
         return
