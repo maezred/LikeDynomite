@@ -22,8 +22,8 @@ apply plugin: 'com.github.johnrengelman.shadow'
 
 ext {
     artifactId = project.name.toLowerCase()
-    isSnapshot = project.version.toString().contains("dev")
     isDirty = project.version.toString().contains("uncommitted")
+    isSnapshot = project.version.toString().contains("dev")
 }
 
 description = 'TNT can destroy other TNT.'
@@ -63,6 +63,10 @@ if (project.ext.isDirty) {
     }
 
     tasks.processResources.dependsOn 'deleteSources'
+}
+
+if (project.ext.isSnapshot) {
+    tasks.publish.dependsOn 'clean'
 }
 
 jar {
