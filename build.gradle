@@ -52,6 +52,8 @@ task expandTemplates(type: Copy) {
 
 if (project.ext.isDirty) {
     task copySources(type: Copy) {
+        outputs.upToDateWhen { false }
+
         from "$projectDir/src"
         into "$buildDir/resources/main/src"
     }
