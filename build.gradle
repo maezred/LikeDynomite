@@ -22,7 +22,8 @@ apply plugin: 'com.github.johnrengelman.shadow'
 
 ext {
     artifactId = project.name.toLowerCase()
-    isSnapshot = project.version.toString().contains("-")
+    isSnapshot = project.version.toString().contains("dev")
+    isDirty = project.version.toString().contains("uncommitted")
 }
 
 description = 'TNT can destroy other TNT.'
@@ -47,6 +48,21 @@ task expandTemplates(type: Copy) {
     into "$buildDir/resources/main"
 
     expand project: project, author: author, website: website, date: date
+}
+
+if (project.ext.isDirty) {
+    task copySources(type: Copy) {
+        from "$projectDir/src"
+        into "$buildDir/resources/main/src"
+    }
+
+    tasks.processResources.dependsOn 'copySources'
+} else {
+    task deleteSources(type: Copy) {
+        delete "$buildDir/resources/main/src"
+    }
+
+    tasks.processResources.dependsOn 'deleteSources'
 }
 
 jar {
