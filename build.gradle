@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.1.1'
+    ext.kotlin_version = '1.1.2'
 
     repositories {
         jcenter()
@@ -8,7 +8,7 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlin_version}"
-        classpath 'org.ajoberstar:gradle-git:+'
+        classpath 'org.ajoberstar:gradle-git:1.7.1'
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
     }
 }
@@ -20,60 +20,91 @@ apply plugin: 'org.ajoberstar.grgit'
 apply plugin: 'org.ajoberstar.release-opinion'
 apply plugin: 'com.github.johnrengelman.shadow'
 
+def date = new Date()
+def lastCommit = grgit.log(maxCommits: 1).get(0)
+
 ext {
     artifactId = project.name.toLowerCase()
-    isDirty = project.version.toString().contains("uncommitted")
-    isSnapshot = project.version.toString().contains("dev")
+    author = lastCommit.author
+    buildDateTime = date.format('YYYY/MM/dd HH:mm:ss zzz')
+    buildDate = date.format('YYYY/MM/dd')
+    buildTime = date.format('HH:mm:ss')
+    copyright = 2015 // Hardcoded for now.
+    isDirty = "${project.version}".contains('uncommitted')
+    isRelease = !"${project.version}".contains('-')
+    isSnapshot = "${project.version}".contains('dev')
+    website = "https://github.com/moltendorf/${project.name}"
+    year = date.format('YYYY')
 }
 
-description = 'TNT can destroy other TNT.'
-group = "net.moltendorf.bukkit"
+description = 'TNT can destroy other TNT!'
+group = 'net.moltendorf.bukkit'
 
 sourceCompatibility = 1.8
 
-def date = new Date().format('YYYY/MM/dd HH:mm:ss')
-def author = "${grgit.log(maxCommits: 1).get(0).author.name} <${grgit.log(maxCommits: 1).get(0).author.email}>"
-def website = "https://github.com/moltendorf/${project.name}"
-
-tasks.build.mustRunAfter 'clean'
-
-tasks.processResources.dependsOn 'expandTemplates'
-tasks.shadowJar.dependsOn 'build'
-tasks.release.dependsOn 'clean', 'shadowJar'
-
-task expandTemplates(type: Copy) {
+task copySources(type: Copy) {
     outputs.upToDateWhen { false }
 
-    from 'src/main/templates'
-    into "$buildDir/resources/main"
+    from "$projectDir/src"
+    into "$buildDir/resources/main/src"
+}
 
-    expand project: project, author: author, website: website, date: date
+task deleteSources(type: Copy) {
+    outputs.upToDateWhen { false }
+
+    delete "$buildDir/resources/main/src"
+}
+
+task copyMeta(type: Copy) {
+    outputs.upToDateWhen { false }
+
+    from "$projectDir/src/main/templates"
+
+    include 'LICENSE'
+    include 'README.md'
+
+    expand project: project
+
+    into projectDir
+}
+
+task publishLatestArtifact(type: Copy) {
+    outputs.upToDateWhen { false }
+
+    from "$buildDir/libs"
+
+    include "${project.name}-${project.version}.jar"
+    rename { "${project.ext.artifactId}.jar" }
+
+    if (project.ext.isRelease) {
+        into "$projectDir/out/nexus/latest/release"
+    } else {
+        into "$projectDir/out/nexus/latest/snapshot"
+    }
+}
+
+tasks.build.mustRunAfter 'clean'
+tasks.copySources.mustRunAfter 'clean'
+tasks.processResources.mustRunAfter 'copySources'
+tasks.shadowJar.mustRunAfter 'jar'
+
+tasks.assemble.dependsOn 'shadowJar'
+tasks.copySources.dependsOn 'deleteSources'
+tasks.publishLatestArtifact.dependsOn 'build', 'clean'
+tasks.publish.dependsOn 'publishLatestArtifact'
+tasks.release.dependsOn 'publish'
+
+if (project.ext.isRelease) {
+    tasks.release.dependsOn 'copyMeta'
 }
 
 if (project.ext.isDirty) {
-    task copySources(type: Copy) {
-        outputs.upToDateWhen { false }
-
-        from "$projectDir/src"
-        into "$buildDir/resources/main/src"
-    }
-
-    tasks.processResources.dependsOn 'copySources'
-} else {
-    task deleteSources(type: Copy) {
-        delete "$buildDir/resources/main/src"
-    }
-
-    tasks.processResources.dependsOn 'deleteSources'
-}
-
-if (project.ext.isSnapshot) {
-    tasks.publish.dependsOn 'clean'
+    tasks.publish.dependsOn 'copySources'
 }
 
 jar {
     manifest.attributes 'Specification-Title': project.name,
-            'Specification-Vendor': author,
+            'Specification-Vendor': "${project.ext.author.name} <${project.ext.author.email}>",
             'Implementation-Title': "${project.group}.${project.ext.artifactId}.${project.name}",
             'Implementation-Version': project.version
 }
@@ -82,6 +113,22 @@ shadowJar {
     baseName = project.name
     version = project.version
     classifier = null
+
+    from("$projectDir/src/main/templates") {
+        include 'LICENSE'
+        include 'README.md'
+
+        expand project: project
+
+        into 'META-INF'
+    }
+
+    from("$projectDir/src/main/templates") {
+        exclude 'LICENSE'
+        exclude 'README.md'
+
+        expand project: project
+    }
 }
 
 publishing {
@@ -96,10 +143,10 @@ publishing {
 
     repositories {
         maven {
-            if (project.ext.isSnapshot) {
-                url "file://$projectDir/out/nexus/snapshots"
-            } else {
+            if (project.ext.isRelease) {
                 url "file://$projectDir/out/nexus/releases"
+            } else {
+                url "file://$projectDir/out/nexus/snapshots"
             }
         }
     }
